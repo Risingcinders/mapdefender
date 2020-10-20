@@ -12,7 +12,8 @@ import datetime
 
 def homepage(request):
     if 'userid' in request.session:
-        return redirect('/quotes')
+        # return redirect('/game')
+        pass
     return render(request, "game.html")
 
 

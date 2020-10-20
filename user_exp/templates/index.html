@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>A Web Page</title>
         {% load static %}
-        <link rel="stylesheet" href="{% static 'quotes/css/foundation.css' %}" />
-        <link rel="stylesheet" href="{% static 'quotes/css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'user/css/foundation.css' %}" />
+        <link rel="stylesheet" href="{% static 'user/css/style.css' %}">
     </head>
     <body>
         <div id="wrapper">
@@ -16,29 +16,20 @@
                     <form name="register" id="register" action="register" method="POST">
                         {% csrf_token %}
                         <label>
-                            First Name:
-                            <input type="text" name="first_name"/>
+                            Username:
+                            <input type="text" name="username"/>
                             <span class="error">
                             {% for message in messages %}
-                                {% if message.tags == 'first_name error' %}
+                                {% if message.tags == 'username error' %}
+                                    {{message}}
+                                {% endif %}
+                                {% if message.tags == 'duplicate2 error' %}
                                     {{message}}
                                 {% endif %}
                             {% endfor %}
                             </span>
                         </label>
                         <br />
-                        <label>
-                            Last Name:
-                            <input type="text" name="last_name" />
-                            <span class="error">
-                            {% for message in messages %}
-                                {% if message.tags == 'last_name error' %}
-                                    {{message}}
-                                {% endif %}
-                            {% endfor %}
-                            </span>
-                        </label>
-                        <br>
                         <label>
                             Email:
                             <input type="text" name="email" />
@@ -121,6 +112,6 @@
             </div>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="{% static 'quotes/js/script.js' %}"></script>
+        <script src="{% static 'user/js/script.js' %}"></script>
     </body>
 </html>

@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>A Web Page</title>
+        <title>The Game</title>
         {% load static %}
         <link rel="stylesheet" href="{% static 'game/css/foundation.css' %}" />
         <link rel="stylesheet" href="{% static 'game/css/style.css' %}" />
@@ -23,22 +23,9 @@
         <div id="enemies"></div>
 
         <div id="buildmenu">
-            <div id="buildtower" bldgtype="tower">
-                Tower
-                <img src="tower.png" alt="" />
-            </div>
-            <div id="buildwall" bldgtype="wall">
-                Wall
-                <img src="wall.png" alt="" />
-            </div>
-            <div id="buildflag" bldgtype="flag">
-                Flag
-                <img src="redflag.png" alt="" />
-            </div>
         </div>
         <div id="littletab" class="overlay">
             <p>Console</p>
-            <img src="chevron.png" alt="" />
         </div>
         <div id="consoletab" class="overlay"><p></p></div>
         <div id="selected_unit" class="overlay"></div>
