@@ -38,22 +38,22 @@ class UserManager(models.Manager):
             login_errors['password2'] = "Password must be at least 8 characters"
         return login_errors
 
-    # def edit_validator(self, postData, sesData):
-    #     edit_errors = {}
-    #     if len(postData['username']) < 1:
-    #         edit_errors["username"] = "First Name cannot be blank"
-    #     users = User.objects.all()
-    #     emaillist = []
-    #     for user in users:
-    #         emaillist.append(user.email)
-    #     if (postData['email'] in emaillist) and (postData['email'] != sesData['userid']):
-    #         # this needs to confirm current user can duplicate their name
-    #         edit_errors['duplicate'] = "That email already exists"
-    #     EMAIL_REGEX = re.compile(
-    #         r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
-    #     if not EMAIL_REGEX.match(postData['email']):
-    #         edit_errors['email2'] = "Invalid email address!"
-    #     return edit_errors
+    def edit_validator(self, postData, sesData):
+        edit_errors = {}
+        if len(postData['username']) < 1:
+            edit_errors["username"] = "First Name cannot be blank"
+        users = User.objects.all()
+        emaillist = []
+        for user in users:
+            emaillist.append(user.email)
+        if (postData['email'] in emaillist) and (postData['email'] != sesData['userid']):
+            # this needs to confirm current user can duplicate their name
+            edit_errors['duplicate'] = "That email already exists"
+        EMAIL_REGEX = re.compile(
+            r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
+        if not EMAIL_REGEX.match(postData['email']):
+            edit_errors['email2'] = "Invalid email address!"
+        return edit_errors
 
 
 class User(models.Model):
