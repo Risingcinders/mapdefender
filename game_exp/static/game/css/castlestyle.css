@@ -1,51 +1,18 @@
 :root {
-    --primarytext: #e67025;
-    --secondarytext: rgb(245, 245, 245);
-    --primarybackground: #4b4b4b;
-    --secbackground: #993b00;
     --pribackground: brown;
+    --secbackground: brown;
     --accent: red;
 }
-
-#wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 1000px;
-    margin: auto;
-}
-
-#header {
-    display: flex;
-    width: 1000px;
-    justify-content: space-between;
-}
-
-button {
-    border: solid 1px steelblue;
-    border-radius: 15px;
-    align-self: flex-end;
-    padding: 5px;
-}
-
-#map {
-    height: 1000px;
-    width: 100%;
-}
-
-/* 
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-} */
 
 * {
     color: rgb(118, 160, 202);
     font-family: fantasy;
     margin: 0px;
     padding: 0px;
+}
+
+body {
+    background-color: black;
 }
 
 #container {
@@ -55,6 +22,14 @@ body {
     background-size: 20px, 20px;
 }
 
+/* 
+#mode {
+    position: absolute;
+    height: 50px;
+    width: 100px;
+    background-color: cadetblue;
+} */
+
 .building {
     position: absolute;
     width: 50px;
@@ -62,13 +37,13 @@ body {
 }
 
 .wall {
-    background: url(../img/wall.png);
+    background: url(wall.png);
     width: 50px;
     height: 50px;
 }
 
 .flag {
-    background: url(../img/flag.png);
+    background: url(flag.png);
     width: 50px;
     height: 50px;
 }
@@ -81,7 +56,7 @@ body {
 }
 
 .tower {
-    background: url(../img/tower.png);
+    background: url(tower.png);
     width: 50px;
     height: 50px;
 }
@@ -158,11 +133,24 @@ body {
     outline: solid 5px var(--accent);
 }
 
-#recenter {
+#pizza {
     top: 950px;
     left: 450px;
-    height: 50px;
-    width: 130px;
+}
+
+#woodstock {
+    top: 950px;
+    left: 550px;
+}
+
+#quarry {
+    top: 950px;
+    left: 650px;
+}
+
+.resourcebtn {
+    height: 40px;
+    width: 75px;
     position: absolute;
     background-color: var(--pribackground);
     box-shadow: black;

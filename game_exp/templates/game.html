@@ -13,32 +13,41 @@
         ></script>
     </head>
     <body>
-        <div id="map"></div>
         <div
-            id="container"
+            id="map"
             onmousemove="getPos(event)"
             onmouseout="stopTracking()"
         ></div>
         <div id="resources" class="overlay"></div>
         <div id="enemies"></div>
-
         <div id="buildmenu">
+            <div id="buildtower" bldgtype="tower">Tower
+                <img id="towersrc" src="{% static 'game/img/tower.png' %}" alt="">
+            </div>
+            <div id="buildwall" bldgtype="wall">Wall
+                <img src="{% static 'game/img/wall.png' %}" alt="">
+            </div>
+            <div id="buildflag" bldgtype="flag">
+                Flag
+                <img id="flagsrc" src="{% static 'game/img/redflag.png' %}" alt="">
+            </div>
         </div>
         <div id="littletab" class="overlay">
             <p>Console</p>
         </div>
         <div id="consoletab" class="overlay"><p></p></div>
         <div id="selected_unit" class="overlay"></div>
-        <div id="pizza" class="resourcebtn overlay">Pepperoni Pizza</div>
-        <div id="woodstock" class="resourcebtn overlay">Woodstock</div>
-        <div id="quarry" class="resourcebtn overlay">Quarry</div>
         <div id="notification"></div>
+        <div id="recenter">Recenter on Keep</div>
         <div id="buildings"></div>
         <div id="units"></div>
         <div id="prebuild" class="building"></div>
         <p id="displayArea "></p>
         <div id="build" class="overlay">Build</div>
         <div id="menu" class="overlay">Pause</div>
+        <div id="loaded_images" style="display: none;">
+            <img src="" alt="">
+        </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="{% static 'game/js/script.js' %}"></script>
     </body>
