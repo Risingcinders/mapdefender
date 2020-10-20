@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>A Web Page</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'game/css/foundation.css' %}" />
+        <link rel="stylesheet" href="{% static 'game/css/style.css' %}" />
+        <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKxs3GPbtdZdBdmuywwJI4sR4RnCfXTuE&callback=initMap&libraries=&v=weekly"
+            defer
+        ></script>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div
+            id="container"
+            onmousemove="getPos(event)"
+            onmouseout="stopTracking()"
+        ></div>
+        <div id="resources" class="overlay"></div>
+        <div id="enemies"></div>
+
+        <div id="buildmenu">
+            <div id="buildtower" bldgtype="tower">
+                Tower
+                <img src="tower.png" alt="" />
+            </div>
+            <div id="buildwall" bldgtype="wall">
+                Wall
+                <img src="wall.png" alt="" />
+            </div>
+            <div id="buildflag" bldgtype="flag">
+                Flag
+                <img src="redflag.png" alt="" />
+            </div>
+        </div>
+        <div id="littletab" class="overlay">
+            <p>Console</p>
+            <img src="chevron.png" alt="" />
+        </div>
+        <div id="consoletab" class="overlay"><p></p></div>
+        <div id="selected_unit" class="overlay"></div>
+        <div id="pizza" class="resourcebtn overlay">Pepperoni Pizza</div>
+        <div id="woodstock" class="resourcebtn overlay">Woodstock</div>
+        <div id="quarry" class="resourcebtn overlay">Quarry</div>
+        <div id="notification"></div>
+        <div id="buildings"></div>
+        <div id="units"></div>
+        <div id="prebuild" class="building"></div>
+        <p id="displayArea "></p>
+        <div id="build" class="overlay">Build</div>
+        <div id="menu" class="overlay">Pause</div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{% static 'game/js/script.js' %}"></script>
+    </body>
+</html>

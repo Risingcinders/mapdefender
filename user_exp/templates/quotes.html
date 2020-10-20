@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Quote Dashboard</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'quotes/css/foundation.css' %}" />
+        <link rel="stylesheet" href="{% static 'quotes/css/dashstyle.css' %}">
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="header">
+                <h3>You've made it, {{logged_in_user.first_name}}!</h3>
+                <div>
+                <a href="/myaccount/{{logged_in_user.id}}">My Account</a>
+                <a href="/logout" id="logout">Logout</a>
+                </div>
+            </div>
+            <div id="main">
+            <div id="quotelist">
+                {% for quote in quotes %}
+                    <div class = 'quoteitem'>
+                        <h5>{{quote.author}}</h5>
+                        <p>{{quote.quote_text}}</p>
+                        <p>(Posted by <a href="user/{{quote.uploaded_by.id}}">{{quote.uploaded_by.first_name}} {{quote.uploaded_by.last_name}})</a></p>
+                        <div class="likebox">
+                        <p>{{quote.liked_by.all|length}} people like this</p>
+                        {% if logged_in_user not in quote.liked_by.all %}
+                            <a href="quotes/{{quote.id}}/addlike">Like!</a>
+                        {% else %}
+                            <p>Including you! <a href="quotes/{{quote.id}}/unlike"> Unlike</a></p>
+                        {% endif %}
+                        </div>
+                        {% if logged_in_user.id == quote.uploaded_by.id %}
+                            <a href="quotes/{{quote.id}}/delete">Delete</a>
+                        {% endif %}
+                        <hr>
+                    </div>
+                {% endfor %}
+            </div>
+            <div id = 'addquote'>
+                <h5>Add a Quote</h5>
+                <form action="quotes/addquote" method='POST'>
+                    {% csrf_token %}
+                    <label>
+                        Author:
+                        <input type="text" name="author">
+                        <span class="error">
+                            {% for message in messages %}
+                                {% if message.tags == 'author error' %}
+                                    {{message}}
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </label>
+                    <label>
+                        Quote:
+                        <textarea name="quote_text" cols="20" rows="10"></textarea>
+                        <span class="error">
+                            {% for message in messages %}
+                                {% if message.tags == 'quote_text error' %}
+                                    {{message}}
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </label>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{% static 'quotes/js/script.js' %}"></script>
+        
+    </body>
+</html>

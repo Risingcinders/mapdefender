@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Edit Account</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'quotes/css/foundation.css' %}" />
+        <link rel="stylesheet" href="{% static 'quotes/css/dashstyle.css' %}">
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="header">
+                <h3>Edit Your Account</h3>
+                <div>
+                    <a href="/quotes">Back to quote dashboard</a>
+                    <a href="/logout" id="logout">Logout</a>
+                </div>
+            </div>
+            <div id="edituser">                
+                <form action="{{logged_in_user.id}}/update" method='POST'>
+                    {% csrf_token %}
+                    <label>
+                        First Name:
+                        <input type="text" name="first_name" value="{{logged_in_user.first_name}}">
+                        <span class="error">
+                            {% for message in messages %}
+                                {% if message.tags == 'first_name error' %}
+                                    {{message}}
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </label>
+                    <label>
+                        Last Name:
+                        <input type="text" name="last_name" value="{{logged_in_user.last_name}}">
+                        <span class="error">
+                            {% for message in messages %}
+                                {% if message.tags == 'last_name error' %}
+                                    {{message}}
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </label>
+                    <label>
+                        Email:
+                        <input type="text" name="email" value="{{logged_in_user.email}}">
+                        <span class="error">
+                            {% for message in messages %}
+                                {% if message.tags == 'duplicate error' %}
+                                    {{message}}
+                                {% endif %}
+                                {% if message.tags == 'email2 error' %}
+                                    {{message}}
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </label>
+                    <button type="submit">Update</button>
+                </form>
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{% static 'quotes/js/script.js' %}"></script>
+    </body>
+</html>

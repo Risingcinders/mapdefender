@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>User Quotes</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'quotes/css/foundation.css' %}" />
+        <link rel="stylesheet" href="{% static 'quotes/css/dashstyle.css' %}">
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="header">
+                <h3>{{thisuser.first_name}} {{thisuser.last_name}} Quote Submissions:</h3>
+                <div>
+                <a href="/quotes">Back to quote dashboard</a>
+                <a href="/logout" id="logout">Logout</a>
+                </div>
+            </div>
+            <div id="quotelist">
+                {% for quote in uploaded_by_list %}
+                    <div class="favoriters">
+                        <p>{{ quote.author }}: {{quote.quote_text}}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{% static 'quotes/js/script.js' %}"></script>
+    </body>
+</html>
