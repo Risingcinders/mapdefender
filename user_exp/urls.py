@@ -7,6 +7,8 @@ urlpatterns = [
     path('login', views.login),
     path('logout', views.logout),
     path('landing', views.landing),
+    path('edit_user_info/<int:user_id>',views.edit_user),
+    path('submit',views.submit),
     path('scoreboard', views.scoreboard),
     path('fakedata/<int:score>/<int:round_count>', views.fakedata)
 ]

@@ -67,8 +67,11 @@ def landing(request):
     else:
         global logged_in_user
         logged_in_user = User.objects.get(email=request.session['userid'])
-    
-    return render(request, "myaccount.html")
+    context = {
+        'all_users': User.objects.all(),
+        'logged_in_user':logged_in_user,
+    }
+    return render(request, "myaccount.html",context)
 
 def scoreboard(request):
     if not 'userid' in request.session:
@@ -90,3 +93,29 @@ def fakedata(request, score, round_count):
     print(f"created entry with {score} and {round_count} ")
     Playthrough.objects.create(score = score, round_count = round_count, user_id = logged_in_user)
     return redirect('/landing')
+
+def edit_user(request,user_id):
+    if not 'userid' in request.session:
+        return redirect('/')
+    else:
+        logged_in_user = User.objects.get(email=request.session['userid'])
+    context={
+        'logged_in_user':logged_in_user
+    }
+    return render(request,"edit_user_info.html",context)
+def submit(request):
+    if request.method == "POST":
+        errors = User.objects.edit_validator(request.POST,request.session)
+        if len(errors)> 0:
+            for key,value in errors.items():
+                messages.error(request,value,extra_tags=key)
+            return redirect('/edit_user_info')
+    
+        update = User.objects.get(id=logged_in_user.id)
+        update.username=request.POST['username']
+        update.email=request.POST['email']
+        update.save()
+        request.session['userid'] = update.email
+        return redirect('/landing')
+    else:
+        return redirect ('/logout')

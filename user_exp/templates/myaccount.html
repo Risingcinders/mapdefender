@@ -9,7 +9,17 @@
         <link rel="stylesheet" href="{% static 'user/css/dashstyle.css' %}">
     </head>
     <body>
+        
         <div id="wrapper">
+            <div id="header">
+                <h2>Welcome {{logged_in_user.username}}!</h2>
+            </div>
+            <div id="pagebody">
+                <a href="/google.com">Start Game</a>
+                <h3>Last Game's Score(score goes here)</h3>
+                <a href="/edit_user_info/{{logged_in_user.id}}">Edit User </a>
+                
+            </div>
             <a href="logout">Logout</a>
             
             
