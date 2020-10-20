@@ -7,5 +7,6 @@ urlpatterns = [
     path('login', views.login),
     path('logout', views.logout),
     path('landing', views.landing),
+    path('scoreboard', views.scoreboard),
     path('fakedata/<int:score>/<int:round_count>', views.fakedata)
 ]

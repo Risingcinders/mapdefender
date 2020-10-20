@@ -70,6 +70,17 @@ def landing(request):
     
     return render(request, "myaccount.html")
 
+def scoreboard(request):
+    if not 'userid' in request.session:
+        return redirect('/')
+    else:
+        logged_in_user = User.objects.get(email=request.session['userid'])
+    context  = {
+        'logged_in_user' : logged_in_user,
+        'scores' : Playthrough.objects.all(),
+    }
+    return render(request, 'scoreboard.html', context)
+
 def fakedata(request, score, round_count):
     if not 'userid' in request.session:
         return redirect('/')
