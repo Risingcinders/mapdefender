@@ -1,18 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Scoreboard</title>
-        {% load static %}
-        <link rel="stylesheet" href="{% static 'user/css/foundation.css' %}" />
-        <link rel="stylesheet" href="{% static 'user/css/dashstyle.css' %}">
-    </head>
-    <body>
-        <div id="wrapper">
-            
-        </div>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="{% static 'user/js/script.js' %}"></script>
-    </body>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scoreboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'user/css/foundation.css' %}" />
+    <link rel="stylesheet" href="{% static 'user/css/dashstyle.css' %}">
+</head>
+
+<body>
+    <div id="wrapper">
+        <h1>Welcome {{logged_in_user.username}}!</h1>
+        <h3>All Games Scoreboard</h3>
+        <table style="width: 50%">
+            <tr>
+                <th>Username</th>
+                <th>Score</th>
+                <th>Number of Rounds</th>
+            </tr>
+            {% for score in scores %}
+            <tr>
+                <td>{{ score.user_id.username }}</td>
+                <td>{{ score.score }}</td>
+                <td>{{ score.round_count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <a href='/landing'>Home</a>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'user/js/script.js' %}"></script>
+</body>
+
 </html>
