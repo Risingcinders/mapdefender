@@ -32,7 +32,7 @@
 //     });
 // });
 
-let map;
+var map;
 
 const keeplatlog = { lat: 30.3259421, lng: -97.6494772 };
 const cave1latlog = { lat: 30.3323365, lng: -97.6901245 };
@@ -42,7 +42,6 @@ function initMap() {
     var directionsRenderer = new google.maps.DirectionsRenderer();
     const myLatlng = { lat: -25.363, lng: 131.044 };
 
-    
     map = new google.maps.Map(document.getElementById("map"), {
         center: keeplatlog,
         zoom: 15,
@@ -72,30 +71,53 @@ function initMap() {
     //   map.setZoom(8);
     //   map.setCenter(marker.getPosition());
     // });
-    directionsRenderer.setMap(map)
+    directionsRenderer.setMap(map);
     directionsService.route(
-      {
-          origin: marker.getPosition(),
-          destination: marker2.getPosition(),
-          travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (response, status) => {
-        console.log(status)
-        console.log(response)
-          if (status === "OK") {
-              directionsRenderer.setDirections(response);
-              const route = response.routes[0];
-          } else {
-              window.alert("Directions request failed due to " + status);
-          }
-      }
+        {
+            origin: marker.getPosition(),
+            destination: marker2.getPosition(),
+            travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (response, status) => {
+            console.log(status);
+            console.log(response);
+            if (status === "OK") {
+                directionsRenderer.setDirections(response);
+                const route = response.routes[0];
+            } else {
+                window.alert("Directions request failed due to " + status);
+            }
+        }
     );
+
+    map.addListener("click", (mapsMouseEvent) => {
+        console.log(mapsMouseEvent.latLng.lat(), mapsMouseEvent.latLng.lng());
+    });
 
     marker.addListener("click", () => {
         map.setZoom(8);
         map.setCenter(marker.getPosition());
     });
+
+    map.event.addListener(map, "click", function (event) {
+        placeMarker(event.latLng);
+    });
+
+    function placeMarker(location) {
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            icon: towerurl,
+            animation: google.maps.Animation.DROP,
+        });
+    }
 }
+
+// new google.maps.Marker({
+//     position : { lat: 30.3, lng: -97.6 },
+//     map: map,
+//     animation : google.maps.Animation.DROP
+// })
 
 // function initMap() {
 //     var location = { lat: 33.019609, lng: -97.046423 };
@@ -414,14 +436,14 @@ $("#build").click(function () {
     console.log(build_toggle);
 });
 
-$("#map").on("click", function () {
-    if (build_toggle == 1) {
-        // build(x, y, selected_building);
-    }
-    console.log();
+// $("#map").on("click", function () {
+//     if (build_toggle == 1) {
+//         // build(x, y, selected_building);
+//     }
+//     console.log();
 
-    displayBuildings();
-});
+//     displayBuildings();
+// });
 
 var selected_id = 1;
 $("#buildings").on("click", ".building", function (event) {
