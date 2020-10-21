@@ -50,7 +50,7 @@ def login(request):
             return redirect('/landing')
         else:
             messages.error(request, "Invalid Email or Password.",
-                           extra_tags='loginerr')
+                            extra_tags='loginerr')
     return redirect('/')
 
 
@@ -119,3 +119,9 @@ def submit(request):
         return redirect('/landing')
     else:
         return redirect ('/logout')
+
+def instruction(request):
+    return render(request,'instruction.html')
+
+def back(request):
+    return redirect('/landing')    

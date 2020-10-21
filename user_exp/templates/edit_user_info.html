@@ -6,12 +6,15 @@
     <title>Edit User</title>
 </head>
 <body>
+    <div class="edit" style="text-align: center;">
     <h1>Edit Account</h1>
     <form action="/submit" method="POST">
         {% csrf_token %}
-        <label>username</label><input type="text" name="username" value="{{User.username}}">
-        <label>email</label><input type="text" name="email" value="{{User.email}}">
+        <label style="font-size: 20px; padding: 10px;">Username</label><input type="text" name="username" value="{{User.username}}">
+        <label style="font-size: 20px; padding: 10px;">Email</label><input type="text" name="email" value="{{User.email}}">
         <button type="submit">Update</button>
     </form>
+    </div>
+    <a href="/back" style="display: flex; justify-content: center; padding: 40px; font-size: 20px;">Go back</a>
 </body>
 </html>
