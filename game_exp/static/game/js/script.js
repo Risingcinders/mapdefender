@@ -78,6 +78,7 @@ function initMap() {
             destination: marker2.getPosition(),
             travelMode: google.maps.TravelMode.DRIVING,
         },
+        // This part needs to be replaced with a new renderer
         (response, status) => {
             console.log(status);
             console.log(response);
@@ -87,6 +88,11 @@ function initMap() {
             } else {
                 window.alert("Directions request failed due to " + status);
             }
+        },
+        {
+            map: map,
+            suppressMarkers: true,
+            preserveViewport: true
         }
     );
 
@@ -99,7 +105,7 @@ function initMap() {
         map.setCenter(marker.getPosition());
     });
 
-    map.event.addListener(map, "click", function (event) {
+    google.maps.event.addListener(map, "click", function (event) {
         placeMarker(event.latLng);
     });
 
