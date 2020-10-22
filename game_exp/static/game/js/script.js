@@ -1,176 +1,73 @@
-// $(document).ready(function () {
-//     console.log("testing");
-//     console.log($)
-//     const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-//     console.log(csrftoken);
-//     function csrfSafeMethod(method) {
-//         // these HTTP methods do not require CSRF protection
-//         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-//     }
-//     $.ajaxSetup({
-//         beforeSend: function(xhr, settings) {
-//             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-//                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
-//             }
-//         }
-//     });
-//     $("#first_name").keyup(function (a) {
-//         a.preventDefault();
-//         var data = $("#register").serialize(); // capture all the data in the form in the variable data
-//         // data.csrfmiddlewaretoken = csrftoken;
-//         console.log(data);
-//         $.post("/first_name", data, function (res) {
-//             console.log("response returned.");
-//         });
-//         $.ajax({
-//             method: "POST", // we are using a post request here, but this could also be done with a get
-//             url: "/first_name",
-//             data: data,
-//         }).done(function (res) {
-//             $("#first_name_val").html(res); // manipulate the dom when the response comes back
-//         });
-//     });
-// });
+var bodyStyles = window.getComputedStyle(document.body);
 
+var directionsService;
+var marker = [];
+var polyLine = [];
+var poly2 = [];
+var startLocation = [];
+var endLocation = [];
+var timerHandle = [];
+var infoWindow = null;
+
+var startLoc = [];
+var endLoc = [];
+
+var lastVertex = 1;
+var step = 50; // 5; // metres
+var eol = [];
 var map;
 
-const keeplatlog = { lat: 30.3259421, lng: -97.6494772 };
-const cave1latlog = { lat: 30.3323365, lng: -97.6901245 };
+const keeplatlog = { lat: 30.330545304396807, lng: -97.69209468498084 };
+const cave1latlog = { lat: 30.34707066622668, lng: -97.61333359466332 };
 
-function initMap() {
-    var directionsService = new google.maps.DirectionsService();
-    var directionsRenderer = new google.maps.DirectionsRenderer();
-    const myLatlng = { lat: -25.363, lng: 131.044 };
-
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: keeplatlog,
-        zoom: 15,
-        gestureHandling: "greedy",
-    });
-    const marker = new google.maps.Marker({
-        icon: towerurl,
-        position: cave1latlog,
-        map,
-        title: "Click to zoom",
-    });
-    const marker2 = new google.maps.Marker({
-        icon: flagurl,
-        position: keeplatlog,
-        map,
-        title: "Click to zoom",
-    });
-
-    // map.addListener("center_changed", () => {
-    //   // 3 seconds after the center of the map has changed, pan back to the
-    //   // marker.
-    //   window.setTimeout(() => {
-    //     map.panTo(marker.getPosition());
-    //   }, 3000);
-    // });
-    // marker.addListener("click", () => {
-    //   map.setZoom(8);
-    //   map.setCenter(marker.getPosition());
-    // });
-    directionsRenderer.setMap(map);
-    directionsService.route(
-        {
-            origin: marker.getPosition(),
-            destination: marker2.getPosition(),
-            travelMode: google.maps.TravelMode.DRIVING,
-        },
-        // This part needs to be replaced with a new renderer
-        (response, status) => {
-            console.log(status);
-            console.log(response);
-            if (status === "OK") {
-                directionsRenderer.setDirections(response);
-                const route = response.routes[0];
-            } else {
-                window.alert("Directions request failed due to " + status);
-            }
-        },
-        {
-            map: map,
-            suppressMarkers: true,
-            preserveViewport: true
-        }
-    );
-
-    map.addListener("click", (mapsMouseEvent) => {
-        console.log(mapsMouseEvent.latLng.lat(), mapsMouseEvent.latLng.lng());
-    });
-
-    marker.addListener("click", () => {
-        map.setZoom(8);
-        map.setCenter(marker.getPosition());
-    });
-
-    google.maps.event.addListener(map, "click", function (event) {
-        placeMarker(event.latLng);
-    });
-
-    function placeMarker(location) {
-        var marker = new google.maps.Marker({
-            position: location,
-            map: map,
-            icon: towerurl,
-            animation: google.maps.Animation.DROP,
-        });
-    }
-}
-
-// new google.maps.Marker({
-//     position : { lat: 30.3, lng: -97.6 },
-//     map: map,
-//     animation : google.maps.Animation.DROP
-// })
-
-// function initMap() {
-//     var location = { lat: 33.019609, lng: -97.046423 };
-//     var map = new google.maps.Map(document.getElementById("map"), {
-//         zoom: 4,
-//         center: location
-//     });
-//     var marker = new google.maps.Marker({
-//         position: location,
-//         map: map
-//     })
-// }
+var towerurl = document.getElementById("towersrc").src;
+var flagurl = document.getElementById("flagsrc").src;
+var caveurl = document.getElementById("cavesrc").src;
+var goblin1url = document.getElementById("goblin1src").src;
+var goblin2url = document.getElementById("goblin2src").src;
+var keepurl = document.getElementById("keepsrc").src;
 
 var build_toggle = 0;
 var console_toggle = 0;
 var ccounter = 0;
 var bcounter = 0;
 var score = 0;
-var woodcost = 0;
+var goldcost = 0;
 var stonecost = 0;
 var foodcost = 0;
 var selected_building = "wall";
+var selected_building_src = "tower";
 var placementz = 0;
 var increment = 1;
-var animate = 1;
+var animateva = 1;
 var buildingcount = { wall: 0, tower: 0, flag: 0 };
+var unit = [];
+var unitmarker = [];
 
-// var resources = { wood: 5000, food: 2000, stone: 100 };
-var resources = { wood: 5000000, food: 200000, stone: 100000 };
+// var resources = { gold: 5000, food: 2000, stone: 100 };
+var resources = { gold: 696969 }; // need to get ajax call here
+
+var round = 1;
 
 var building_types = [
     {
         btype: "wall",
-        cost: { wood: 500, food: 0, stone: 0, limit: 9999 },
+        cost: { gold: 500 },
         hp: 3,
     },
     {
         btype: "tower",
-        cost: { wood: 1000, stone: 10, food: 0, limit: 9999 },
+        cost: { gold: 1000 },
         hp: 5,
     },
-    { btype: "flag", cost: { wood: 0, stone: 0, food: 0, limit: 1 }, hp: 1 },
+    { btype: "flag", cost: { gold: 0 }, hp: 1 },
 ];
 
 buildingobj = building_types.find((a) => a.btype == selected_building);
 
-var buildings = [{ x: 650, y: 650, z: 0, hp: 1, type: "flag" }];
+// { lat: 650, lng: 650, type: "tower" }
+
+var buildings = [];
 var units = [
     {
         utype: "goblin",
@@ -182,67 +79,21 @@ var units = [
         speed: 1,
         attack: 1,
     },
-    {
-        utype: "goblin",
-        x: 500,
-        y: 1000,
-        z: 0,
-        hp: 4,
-        team: "enemy",
-        speed: 2,
-        attack: 1,
-    },
-    {
-        utype: "goblin",
-        x: 500,
-        y: 900,
-        z: 0,
-        hp: 4,
-        team: "enemy",
-        speed: 1,
-        attack: 1,
-    },
-    {
-        utype: "goblin",
-        x: 300,
-        y: 700,
-        z: 0,
-        hp: 4,
-        team: "enemy",
-        speed: 1,
-        attack: 1,
-    },
 ];
 
 function getcost(item) {
-    woodcost = item.cost.wood;
-    stonecost = item.cost.stone;
-    foodcost = item.cost.food;
-    limitcount = item.cost.limit;
+    goldcost = item.cost.gold;
 }
-
-var towerurl = document.getElementById("towersrc").src;
-var flagurl = document.getElementById("flagsrc").src;
 
 // This needs to be redone to ajax the gold
 function checkcost() {
-    return (
-        woodcost <= resources.wood &&
-        stonecost <= resources.stone &&
-        foodcost <= resources.food &&
-        limitcount > buildingcount[selected_building]
-    );
+    return goldcost <= resources.gold;
 }
 
 function notify(note) {
     $("#consoletab p")
         .first()
         .append("<p>" + note + "</p>");
-    // $("#notification").text(note);
-    // $("#notification").css("top", y);
-    // $("#notification").css("left", x + 55);
-    // $("#notification").show(500).delay(500);
-    // $("#notification").fadeToggle(500);
 }
 
 function buildingcounter() {
@@ -250,25 +101,15 @@ function buildingcounter() {
     for (i = 0; i < buildings.length; i++) {
         buildingcount[buildings[i].type]++;
     }
-    // console.log(buildingcount);
 }
 
 function spendresources() {
-    resources.wood -= woodcost;
-    resources.food -= foodcost;
-    resources.stone -= stonecost;
-    notify(
-        "Wood: -" +
-            woodcost +
-            " \nStone: -" +
-            stonecost +
-            " \nFood: -" +
-            foodcost
-    );
+    resources.gold -= goldcost;
+    notify("gold: -" + goldcost);
     updateResources();
 }
 
-function build(xpos, ypos, building_type) {
+function build(lat, lng, building_type) {
     for (var i = 0; i < building_types.length; i++) {
         if (building_types[i].btype == building_type) {
             getcost(building_types[i]);
@@ -279,15 +120,11 @@ function build(xpos, ypos, building_type) {
     }
     if (checkcost()) {
         buildings.push({
-            x: xpos,
-            y: ypos,
-            z: placementz,
-            hp: building_hp,
+            lat: lat,
+            lng: lng,
             type: building_type,
         });
         spendresources();
-    } else if (limitcount <= buildingcount[selected_building]) {
-        notify("You cannot have any more of this building");
     } else {
         notify("Insufficient Resources");
     }
@@ -317,9 +154,9 @@ function displayUnits() {
     var output = "";
     increment++;
     if (increment % 10 == 0) {
-        animate = 1;
+        animateva = 1;
     } else if (increment % 5 == 0) {
-        animate = 2;
+        animateva = 2;
     }
     for (i = 0; i < units.length; i++) {
         output +=
@@ -334,46 +171,20 @@ function displayUnits() {
             "px; transform: rotate(" +
             (units[i].z - 90) +
             "deg); background-image: url( `static/game/img/goblin" +
-            animate +
+            animateva +
             ".png`);'></div>";
     }
     document.getElementById("units").innerHTML = output;
     // console.log(output);
 }
 
-function moveUnits() {
-    theflag = buildings.find((a) => a.type == "flag");
-    for (i = 0; i < units.length; i++) {
-        delta_x = units[i].x - theflag.x;
-        delta_y = units[i].y - theflag.y;
-        units[i].z = (Math.atan2(delta_y, delta_x) * 180) / Math.PI;
-        units[i].x -= Math.cos(Math.atan2(delta_y, delta_x)) * units[i].speed;
-        units[i].y -= Math.sin(Math.atan2(delta_y, delta_x)) * units[i].speed;
-        //  (units[i].speed * delta_x) / Math.abs(delta_x + 1);
-        // units[i].y -= (units[i].speed * delta_y) / Math.abs(delta_y + 1);
-    }
-}
-
-function circleploters() {
-    theflag = buildings.find((a) => a.type == "flag");
-    for (i = 0; i < units.length; i++) {
-        delta_x = units[i].x - theflag.x;
-        delta_y = units[i].y - theflag.y;
-        units[i].z = (Math.atan2(delta_y, delta_x) * 180) / Math.PI;
-        units[i].x -= Math.sin(Math.atan2(delta_y, delta_x)) * units[i].speed;
-        units[i].y += Math.cos(Math.atan2(delta_y, delta_x)) * units[i].speed;
-        //  (units[i].speed * delta_x) / Math.abs(delta_x + 1);
-        // units[i].y -= (units[i].speed * delta_y) / Math.abs(delta_y + 1);
-    }
-}
-
 function ghost_building() {
     if (build_toggle == 1) {
         $("#prebuild").css("display", "block");
-        $("#prebuild").css("background", "url(" + selected_building + ".png)");
+        $("#prebuild").css("background", "url(" + selected_building_src + ")");
         $("#prebuild").css("opacity", ".5");
-        $("#prebuild").css("top", y);
-        $("#prebuild").css("left", x);
+        $("#prebuild").css("top", y - 25);
+        $("#prebuild").css("left", x - 25);
         $("#prebuild").css("transform", "rotate(" + placementz + "deg)");
     } else {
         $("#prebuild").css("display", "none");
@@ -382,34 +193,13 @@ function ghost_building() {
 
 function updateResources() {
     document.getElementById("resources").innerHTML =
-        "<h3>Wood: " +
-        resources.wood +
-        "</h3><h3> Food: " +
-        resources.food +
-        " </h3><h3>Stone: " +
-        resources.stone +
-        "</h3>";
+        "<h3>Gold: " + resources.gold + " </h3><h3>Round: " + round + "</h3>";
 }
 
 function getPos(e) {
     x = e.clientX;
     y = e.clientY;
-    x = Math.floor(x / 50) * 50;
-    y = Math.floor(y / 50) * 50;
 }
-
-function stopTracking() {}
-
-document.onkeydown = function (e) {
-    if (e.keyCode == 82) {
-        placementz += 90;
-        if (placementz == 360) {
-            placementz = 0;
-        }
-    }
-    console.log(placementz);
-    // console.log(e.keyCode)
-};
 
 $("#buildmenu").toggle();
 $("#consoletab").toggle();
@@ -427,7 +217,13 @@ function gamepaused() {
 }
 
 $("#menu").on("click", function (event) {
-    gamepaused();
+    // Need to put stuff in changing it to wait, disabling clicking.
+    $("#menu").off("click"); // This needs to be fixed, disabled so people can't restart the round
+    $("#map").off("click");
+    $("#build").off("click");
+    $("#buildmenu").css("display", "none");
+    setInterval(gameLoop, 25);
+    setRoutes();
 });
 
 $("#build").click(function () {
@@ -439,59 +235,51 @@ $("#build").click(function () {
     } else {
         $("#build").css("filter", "none");
     }
-    console.log(build_toggle);
+    // console.log(build_toggle);
 });
-
-// $("#map").on("click", function () {
-//     if (build_toggle == 1) {
-//         // build(x, y, selected_building);
-//     }
-//     console.log();
-
-//     displayBuildings();
-// });
 
 var selected_id = 1;
-$("#buildings").on("click", ".building", function (event) {
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    $(this).addClass("selected");
-    $("div").not(this).removeClass("selected");
-    selected_id = $(".selected").attr("unitid");
-    $("#selected_unit").html(
-        "<img src='" +
-            buildings[selected_id].type +
-            ".png'></img><h3>HP: " +
-            buildings[selected_id].hp +
-            "</h3><h3>Type: " +
-            buildings[selected_id].type +
-            "</h3>"
-    );
-    console.log(selected_id);
-});
-
 $("#buildmenu div").on("click", function (event) {
-    selected_building = $(this).attr("bldgtype");
+    selected_building = "tower";
+    selected_building_src = towerurl;
+    console.log(selected_building_src);
     buildingobj = building_types.find((a) => a.btype == selected_building);
     $(this).addClass("selected");
     $("div").not(this).removeClass("selected");
-
     $("#selected_unit").html(
         "<img src='" +
-            selected_building +
-            ".png'></img><h3>HP: " +
+            selected_building_src +
+            "'></img><p>HP: " +
             buildingobj.hp +
-            "</h3><h3>Type: " +
+            "</p><p>Type: " +
             selected_building +
-            "</h3>"
+            "</p>"
     );
 });
 
 function gameLoop() {
-    displayUnits();
-    moveUnits();
-    // updateResources();
     ghost_building();
+    if (unit.length == 0) {
+        console.log('victory')
+    }
+    updateMarkers();
+}
+
+function gameover() {
+    clearInterval(gameLoop);
+    $("#sneaky").css("display", "block");
+    $("#map").css("filter", "grayscale(100%)");
+    document.body.style.setProperty("--accent", "#4b4b4b");
+    document.body.style.setProperty("--secbackground", "#4b4b4b");
+    document.body.style.setProperty("--pribackground", "#4b4b4b");
+    $("#menu").off("click");
+    $("#build").off("click");
+    $("#recenter").off("click");
+    $("#littletab").off("click");
+    map.setOptions({
+        gestureHandling: "none",
+        zoomControl: false,
+    });
 }
 
 // $("#recenter").on("click", function (event) {
@@ -504,7 +292,7 @@ $("#recenter").on("click", function (event) {
     map.setZoom(15);
 });
 
-setInterval(gameLoop, 1000);
+setInterval(gameLoop, 25);
 
 updateResources();
 displayBuildings();
@@ -526,3 +314,354 @@ $("#littletab").click(function () {
     }
     console.log(console_toggle);
 });
+
+var map;
+var directionsService;
+var marker = [];
+var polyLine = [];
+var poly2 = [];
+var startLocation = [];
+var endLocation = [];
+var timerHandle = [];
+var infoWindow = null;
+
+var startLoc = [];
+var endLoc = [];
+
+var lastVertex = 1;
+var step = 50; // 5; // metres
+var eol = [];
+
+// called on body load
+function initMap() {
+    // initialize infoWindow
+    infoWindow = new google.maps.InfoWindow({
+        size: new google.maps.Size(150, 50),
+    });
+
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: keeplatlog,
+        zoom: 15,
+        gestureHandling: "greedy",
+        clickableIcons: false,
+        streetViewControl: false,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        fullscreenControl: false,
+    });
+    //
+    // initial location which loads up on map
+    const marker = new google.maps.Marker({
+        icon: caveurl,
+        position: cave1latlog,
+        map,
+    });
+    const marker2 = new google.maps.Marker({
+        icon: keepurl,
+        position: keeplatlog,
+        map,
+    });
+
+    // map.addListener("click", (mapsMouseEvent) => {
+
+    //     console.log(mapsMouseEvent.latLng.lat(), mapsMouseEvent.latLng.lng());
+    // });
+
+    google.maps.event.addListener(map, "click", function (event) {
+        if (build_toggle == 1) {
+            console.log(event.latLng.lat());
+            placeMarker(event.latLng);
+
+            build(event.latLng.lat(), event.latLng.lng(), selected_building);
+        }
+    });
+    // var line = new google.maps.Polyline({path: [keeplatlog, cave1latlog], map: map});
+    // console.log(haversine_distance(cave1latlog, keeplatlog))
+}
+
+//this is too large a number
+function haversine_distance(mk1, mk2) {
+    var R = 6371071; // Radius of the Earth in meters
+    var rlat1 = mk1.lat * (Math.PI / 180); // Convert degrees to radians
+    var rlat2 = mk2.lat * (Math.PI / 180); // Convert degrees to radians
+    var difflat = rlat2 - rlat1; // Radian difference (latitudes)
+    var difflon = (mk2.lng - mk1.lng) * (Math.PI / 180); // Radian difference (longitudes)
+    var d =
+        2 *
+        R *
+        Math.asin(
+            Math.sqrt(
+                Math.sin(difflat / 2) * Math.sin(difflat / 2) +
+                    Math.cos(rlat1) *
+                        Math.cos(rlat2) *
+                        Math.sin(difflon / 2) *
+                        Math.sin(difflon / 2)
+            )
+        );
+    return d;
+}
+
+function placeMarker(location) {
+    var marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        icon: {
+            url: towerurl,
+            scaledSize: new google.maps.Size(50, 50),
+            anchor: new google.maps.Point(25, 25),
+        },
+        animation: google.maps.Animation.DROP,
+    });
+    const rangeRing = new google.maps.Circle({
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#FF0000",
+        fillOpacity: 0.35,
+        map,
+        center: location,
+        radius: 800,
+    });
+}
+
+// returns the marker
+function createMarker(latlng, label) {
+    // using Marker api, marker is created
+    var marker = new google.maps.Marker({
+        position: latlng,
+        map: map,
+        title: label,
+        zIndex: 10,
+        icon: {
+            url: flagurl,
+            scaledSize: new google.maps.Size(50, 50),
+            anchor: new google.maps.Point(25, 25),
+        },
+    });
+    marker.myname = label;
+    // adding click listener to open up info window when marker is clicked
+    return marker;
+}
+
+// function toggleError(msg){
+//     document.getElementById('error-msg').innerText = msg;
+// }
+
+// Using Directions Service find the route between the starting and ending points
+function setRoutes() {
+    map && initMap();
+    for (var i = 0; i < buildings.length; i++) {
+        placeMarker({ lat: buildings[i].lat, lng: buildings[i].lng });
+    }
+
+    startLoc[0] = cave1latlog;
+    endLoc[0] = keeplatlog;
+
+    startLocation = [];
+    endLocation = [];
+    polyLine = [];
+    poly2 = [];
+    timerHandle = [];
+
+    var directionsDisplay = new Array();
+    for (var i = 0; i < startLoc.length; i++) {
+        var rendererOptions = {
+            map: map,
+            suppressMarkers: false,
+            preserveViewport: true,
+        };
+        directionsService = new google.maps.DirectionsService();
+        var travelMode = google.maps.DirectionsTravelMode.DRIVING;
+        var request = {
+            origin: startLoc[i],
+            destination: endLoc[i],
+            travelMode: travelMode,
+        };
+        directionsService.route(
+            request,
+            makeRouteCallback(i, directionsDisplay[i]),
+            rendererOptions
+        );
+    }
+}
+
+// called after getting route from directions service, does all the heavylifting
+function makeRouteCallback(routeNum, disp, rendererOptions) {
+    // check if polyline and map exists, if yes, no need to do anything else, just start the animation
+    if (polyLine[routeNum] && polyLine[routeNum].getMap() != null) {
+        startAnimation(routeNum);
+        return;
+    }
+    return function (response, status) {
+        // if directions service successfully returns and no polylines exist already, then do the following
+        if (status == google.maps.DirectionsStatus.ZERO_RESULTS) {
+            toggleError("No routes available for selected locations");
+            return;
+        }
+        if (status == google.maps.DirectionsStatus.OK) {
+            startLocation[routeNum] = new Object();
+            endLocation[routeNum] = new Object();
+            // set up polyline for current route
+            polyLine[routeNum] = new google.maps.Polyline({
+                path: [],
+                strokeColor: "#FFFF00",
+                strokeWeight: 3,
+            });
+            poly2[routeNum] = new google.maps.Polyline({
+                path: [],
+                strokeColor: "#FFFF00",
+                strokeWeight: 3,
+            });
+            // For each route, display summary information.
+            var legs = response.routes[0].legs;
+            // directionsrenderer renders the directions obtained previously by the directions service
+            disp = new google.maps.DirectionsRenderer(rendererOptions);
+            disp.setMap(map);
+            disp.setDirections(response);
+
+            // create Markers
+            for (i = 0; i < legs.length; i++) {
+                // for first marker only
+                if (i == 0) {
+                    startLocation[routeNum].latlng = legs[i].start_location;
+                    startLocation[routeNum].address = legs[i].start_address;
+                    // marker[routeNum] = createMarker(
+                    //     legs[i].start_location,
+                    //     "start",
+                    //     legs[i].start_address,
+                    //     "green"
+                    // );
+                }
+                endLocation[routeNum].latlng = legs[i].end_location;
+                endLocation[routeNum].address = legs[i].end_address;
+                var steps = legs[i].steps;
+                for (j = 0; j < steps.length; j++) {
+                    var nextSegment = steps[j].path;
+                    for (k = 0; k < nextSegment.length; k++) {
+                        polyLine[routeNum].getPath().push(nextSegment[k]);
+                    }
+                }
+            }
+        }
+        if (polyLine[routeNum]) {
+            // render the line to map
+            polyLine[routeNum].setMap(map);
+            // and start animation
+            startAnimation(routeNum);
+        }
+    };
+}
+
+// Spawn a new polyLine every 20 vertices
+function updatePoly(i, d) {
+    if (poly2[i].getPath().getLength() > 20) {
+        poly2[i] = new google.maps.Polyline([
+            polyLine[0].getPath().getAt(lastVertex - 1),
+        ]);
+    }
+
+    if (polyLine[0].GetIndexAtDistance(d) < lastVertex + 2) {
+        if (poly2[i].getPath().getLength() > 1) {
+            poly2[i].getPath().removeAt(poly2[i].getPath().getLength() - 1);
+        }
+        poly2[i]
+            .getPath()
+            .insertAt(
+                poly2[i].getPath().getLength(),
+                polyLine[0].GetPointAtDistance(d)
+            );
+    } else {
+        poly2[i]
+            .getPath()
+            .insertAt(poly2[i].getPath().getLength(), endLocation[0].latlng);
+    }
+    // poly2[i].setMap(map);
+    // console.log("peanut");
+}
+
+round = 2
+
+function updateMarkers() {
+    //update markers
+    for (var i = 0; i < unit.length; i++) {
+        if (unit[i].d > eol[0]) {
+            setInterval(gameLoop, 10000);
+            gameover();
+            return;
+        }
+
+        if (unit[i].delay <= 0 ){
+        unit[i].d += 50;
+        var p = polyLine[0].GetPointAtDistance(unit[i].d);
+        unit[i].lat = p.lat();
+        unit[i].lng = p.lng();
+        unitmarker[i].setPosition({ lat: unit[i].lat, lng: unit[i].lng });
+        updatePoly(i, unit[i].d);
+        } else {
+            unit[i].delay -= 10
+        }
+        // do combat
+        for (var tower = 0; tower < buildings.length; tower++) {
+            var towerlatlng = {
+                lat: buildings[tower].lat,
+                lng: buildings[tower].lng,
+            };
+            // get distance between tower and the object
+            // if distance is less than tower range 800
+            if (
+                haversine_distance(
+                    { lat: unit[i].lat, lng: unit[i].lng },
+                    towerlatlng
+                ) < 800
+            ) {
+                unit[i].hp -= 1;
+                console.log(unit[i].hp)
+                //detect death
+                if (unit[i].hp <= 0) {
+                    unit.splice(i, 1);
+                    unitmarker[i].setMap(null)
+                    unitmarker[i].setIcon({
+                        url: goblin1url,
+                        scaledSize: new google.maps.Size(50, 50),
+                        anchor: new google.maps.Point(25, 25),
+                    })
+                    unitmarker.splice(i,1)
+                    resources.gold += 100 * round
+                    updateResources()
+                }
+            }
+        }
+    }
+}
+
+function startAnimation(index) {
+    if (timerHandle[index]) clearTimeout(timerHandle[index]);
+    eol[0] = polyLine[0].Distance(); // eol is the distance of the whole route
+    map.setCenter(polyLine[0].getPath().getAt(0));
+    // poly2[index] = new google.maps.Polyline({
+    //     path: [polyLine[index].getPath().getAt(0)],
+    //     strokeColor: "#FFFF00",
+    //     strokeWeight: 3,
+    // });
+    for (var i = 0; i < round * round; i++) {
+        // spawns enemies for each round upping difficulty
+        // add units to unit roster
+        unit.push({
+            lat: cave1latlog.lat,
+            lng: cave1latlog.lng,
+            hp: 10 * round * round,
+            d: 50,
+            delay: i * 100,
+        });
+    }
+    console.log("created units:", unit.length);
+    for (var i = 0; i < unit.length; i++) {
+        // creates markers and poly2 for each unit
+        // hold onto your butts
+        unitmarker[i] = createMarker({ lat: unit[i].lat, lng: unit[i].lng });
+        poly2[i] = new google.maps.Polyline({
+            path: [polyLine[0].getPath().getAt(0)],
+            strokeColor: "#FFFF00",
+            strokeWeight: 3,
+        });
+    }
+}

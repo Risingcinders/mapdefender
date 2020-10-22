@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-# from .models import U
+from .models import Instance
+from user_exp.models import User
 import datetime
 # import bcrypt
 
@@ -15,6 +16,17 @@ def homepage(request):
         # return redirect('/game')
         pass
     return render(request, "game.html")
+
+def gameStart(request):
+    if not 'userid' in request.session:
+        return redirect('/')
+    else:
+        logged_in_user = User.objects.get(email=request.session['userid'])
+    context={
+        'logged_in_user':logged_in_user
+    }
+    Instance.objects.create(gold=2000, score=0,round_count=0)
+    return redirect('/game',context)
 
 
 # def register(request):

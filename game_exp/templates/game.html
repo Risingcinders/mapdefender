@@ -6,30 +6,25 @@
         <title>The Game</title>
         {% load static %}
         <link rel="stylesheet" href="{% static 'game/css/foundation.css' %}" />
-        <link rel="stylesheet" href="{% static 'game/css/style.css' %}" />
+        <link rel="stylesheet" href="{% static 'game/css/peanut.css' %}" />
         <script
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKxs3GPbtdZdBdmuywwJI4sR4RnCfXTuE&callback=initMap&libraries=&v=weekly"
             defer
         ></script>
+        <script src="{% static 'game/js/timmy.js' %}" defer></script>
     </head>
     <body>
-        <div
-            id="map"
-            onmousemove="getPos(event)"
-            onmouseout="stopTracking()"
-        ></div>
+        <div id="map" onmousemove="getPos(event)"></div>
         <div id="resources" class="overlay"></div>
         <div id="enemies"></div>
         <div id="buildmenu">
-            <div id="buildtower" bldgtype="tower">Tower
-                <img id="towersrc" src="{% static 'game/img/tower.png' %}" alt="">
-            </div>
-            <div id="buildwall" bldgtype="wall">Wall
-                <img src="{% static 'game/img/wall.png' %}" alt="">
-            </div>
-            <div id="buildflag" bldgtype="flag">
-                Flag
-                <img id="flagsrc" src="{% static 'game/img/redflag.png' %}" alt="">
+            <div id="buildtower" bldgtype="tower">
+                Tower
+                <img
+                    id="towersrc"
+                    src="{% static 'game/img/tower.png' %}"
+                    alt=""
+                />
             </div>
         </div>
         <div id="littletab" class="overlay">
@@ -42,11 +37,34 @@
         <div id="buildings"></div>
         <div id="units"></div>
         <div id="prebuild" class="building"></div>
-        <p id="displayArea "></p>
+        <div id="sneaky">
+            <h3>Game Over!</h3>
+            <p>Final Score: </p>
+            <p> Final Round: </p>
+            <a href="/landing">Back to Home Page</a>
+            <a href="/scoreboard">Leaderboards</a>
+        </div>
         <div id="build" class="overlay">Build</div>
         <div id="menu" class="overlay">Pause</div>
-        <div id="loaded_images" style="display: none;">
-            <img src="" alt="">
+        <div id="loaded_images" style="display: none">
+            <img id="wallsrc" src="{% static 'game/img/wall.png' %}" alt="" />
+            <img
+                id="flagsrc"
+                src="{% static 'game/img/redflag.png' %}"
+                alt=""
+            />
+            <img id="cavesrc" src="{% static 'game/img/cave.png' %}" alt="" />
+            <img
+                id="goblin1src"
+                src="{% static 'game/img/goblin1.png' %}"
+                alt=""
+            />
+            <img
+                id="goblin2src"
+                src="{% static 'game/img/goblin2.png' %}"
+                alt=""
+            />
+            <img id="keepsrc" src="{% static 'game/img/keep.png' %}" alt="" />
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="{% static 'game/js/script.js' %}"></script>

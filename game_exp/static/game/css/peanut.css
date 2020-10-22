@@ -30,7 +30,7 @@ button {
 
 #map {
     height: 1000px;
-    width: 100%;
+    width: 1800px;
 }
 
 /* 
@@ -230,4 +230,19 @@ body {
 .goblin {
     /* background-color: palevioletred; */
     background-image: url(goblin1.png);
+}
+
+#sneaky {
+    padding: 5px;
+    width: 350px;
+    height: 350px;
+    position: absolute;
+    display: none;
+    top: 200px;
+    left: 500px;
+    text-align: center;
+    background-color: #993b00;
+    outline: solid 5px red;
+    font-size: x-large;
+    filter: grayscale(50%);
 }
