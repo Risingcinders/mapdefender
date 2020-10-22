@@ -29,6 +29,7 @@
         </div>
         <div id="littletab" class="overlay">
             <p>Console</p>
+            <img src="{% static 'game/img/chevron.png' %}" alt="">
         </div>
         <div id="consoletab" class="overlay"><p></p></div>
         <div id="selected_unit" class="overlay"></div>
@@ -39,13 +40,13 @@
         <div id="prebuild" class="building"></div>
         <div id="sneaky">
             <h3>Game Over!</h3>
-            <p>Final Score: </p>
-            <p> Final Round: </p>
+            <p id="finalscore">Final Score: </p>
+            <p id="finalround"> Final Round: </p>
             <a href="/landing">Back to Home Page</a>
             <a href="/scoreboard">Leaderboards</a>
         </div>
         <div id="build" class="overlay">Build</div>
-        <div id="menu" class="overlay">Pause</div>
+        <div id="menu" class="overlay">Start Round</div>
         <div id="loaded_images" style="display: none">
             <img id="wallsrc" src="{% static 'game/img/wall.png' %}" alt="" />
             <img

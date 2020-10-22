@@ -1,4 +1,7 @@
 var bodyStyles = window.getComputedStyle(document.body);
+var gamestate = 1;
+var cavemarker = true
+var keepmarker2 = true
 
 var directionsService;
 var marker = [];
@@ -8,7 +11,7 @@ var startLocation = [];
 var endLocation = [];
 var timerHandle = [];
 var infoWindow = null;
-
+var selected_id = 1;
 var startLoc = [];
 var endLoc = [];
 
@@ -45,7 +48,7 @@ var unit = [];
 var unitmarker = [];
 
 // var resources = { gold: 5000, food: 2000, stone: 100 };
-var resources = { gold: 696969 }; // need to get ajax call here
+var resources = { gold: 5000 }; // need to get ajax call here
 
 var round = 1;
 
@@ -203,6 +206,7 @@ function getPos(e) {
 
 $("#buildmenu").toggle();
 $("#consoletab").toggle();
+
 var pcounter = 1;
 function gamepaused() {
     pcounter++;
@@ -216,57 +220,19 @@ function gamepaused() {
     }
 }
 
-$("#menu").on("click", function (event) {
-    // Need to put stuff in changing it to wait, disabling clicking.
-    $("#menu").off("click"); // This needs to be fixed, disabled so people can't restart the round
-    $("#map").off("click");
-    $("#build").off("click");
-    $("#buildmenu").css("display", "none");
-    setInterval(gameLoop, 25);
-    setRoutes();
-});
-
-$("#build").click(function () {
-    $("#buildmenu").toggle();
-    bcounter++;
-    build_toggle = bcounter % 2;
-    if (build_toggle != 1) {
-        $("#build").css("filter", "grayscale(50%)");
-    } else {
-        $("#build").css("filter", "none");
-    }
-    // console.log(build_toggle);
-});
-
-var selected_id = 1;
-$("#buildmenu div").on("click", function (event) {
-    selected_building = "tower";
-    selected_building_src = towerurl;
-    console.log(selected_building_src);
-    buildingobj = building_types.find((a) => a.btype == selected_building);
-    $(this).addClass("selected");
-    $("div").not(this).removeClass("selected");
-    $("#selected_unit").html(
-        "<img src='" +
-            selected_building_src +
-            "'></img><p>HP: " +
-            buildingobj.hp +
-            "</p><p>Type: " +
-            selected_building +
-            "</p>"
-    );
-});
+gamestage();
 
 function gameLoop() {
     ghost_building();
-    if (unit.length == 0) {
-        console.log('victory')
-    }
-    updateMarkers();
+    // updateMarkers();
+    victorycheck();
 }
 
 function gameover() {
     clearInterval(gameLoop);
+    gamestate = 0;
+    $("#finalscore").append(score)
+    $("#finalround").append(round)
     $("#sneaky").css("display", "block");
     $("#map").css("filter", "grayscale(100%)");
     document.body.style.setProperty("--accent", "#4b4b4b");
@@ -280,6 +246,97 @@ function gameover() {
         gestureHandling: "none",
         zoomControl: false,
     });
+}
+
+function victorycheck() {
+    if (gamestate == 2) {
+        updateMarkers();
+        if (unit.length == 0) {
+            //round complete, progress game
+            notify("Round " + round + " Complete!");
+            resources.gold += round * 100;
+            notify("Round bonus: " + round * 100 + " gold!");
+            gamestate = 1;
+            recalccave();
+            notify("New Cave has apeared!");
+            caveWindow = new google.maps.InfoWindow({
+                content: "A new Cave has Appeared!",
+                size: new google.maps.Size(150, 50)
+            });
+            caveWindow.open(map, cavemarker);
+            round++;
+            gamestage();
+        }
+    } 
+}
+
+function gamestage() {
+    if (gamestate == 1) {
+        build_toggle = 0;
+        bcounter = 0;
+        $("#menu").on("click", function (event) {
+            for (var i = 0; i < unitmarker.length; i++) {
+                unitmarker[i].setMap(null);
+            }
+            for (var i = 0; i < round * round; i++) {
+                // spawns enemies for each round upping difficulty
+                // add units to unit roster
+                unit.push({
+                    lat: cave1latlog.lat,
+                    lng: cave1latlog.lng,
+                    hp: 10 * round * round,
+                    d: 50,
+                    delay: i * 100,
+                });
+            }
+            console.log("created units:", unit.length);
+            gamestate = 2;
+            // Need to put stuff in changing it to wait, disabling clicking.
+            $("#menu").off("click"); // This needs to be fixed, disabled so people can't restart the round
+            $("#map").off("click");
+            $("#build").off("click");
+            $("#buildmenu").hide();
+            build_toggle = 0;
+            $("#build").css("filter", "grayscale(50%)");
+            setInterval(gameLoop, 50);
+
+            setRoutes();
+            console.log("its over");
+        });
+
+        $("#build").on("click", function (event) {
+            $("#buildmenu").toggle();
+            bcounter++;
+            build_toggle = bcounter % 2;
+            if (build_toggle != 1) {
+                $("#build").css("filter", "grayscale(50%)");
+            } else {
+                $("#build").css("filter", "none");
+            }
+            console.log(build_toggle);
+        });
+
+        $("#buildmenu div").on("click", function (event) {
+            selected_building = "tower";
+            selected_building_src = towerurl;
+            console.log(selected_building_src);
+            buildingobj = building_types.find(
+                (a) => a.btype == selected_building
+            );
+            $(this).addClass("selected");
+            $("div").not(this).removeClass("selected");
+            $("#selected_unit").html(
+                "<img src='" +
+                    selected_building_src +
+                    "'></img><p>HP: " +
+                    buildingobj.hp +
+                    "</p><p>Type: " +
+                    selected_building +
+                    "</p>"
+            );
+        });
+    } else if (gamestate == 2) {
+    }
 }
 
 // $("#recenter").on("click", function (event) {
@@ -297,22 +354,25 @@ setInterval(gameLoop, 25);
 updateResources();
 displayBuildings();
 
-$("#littletab").click(function () {
+toggleConsole();
+
+function toggleConsole() {
     $("#consoletab").toggle();
     console_toggle++;
     if (console_toggle % 2 != 1) {
         // original position
-        // $("#littletab").css('left',500)
         $("#selected_unit").css("left", 1650);
         $("#littletab img").css("transform", "rotate(0deg)");
     } else {
         //counsoles out
-        // $("#littletab").css('left',200)
         $("#littletab img").css("transform", "rotate(180deg)");
 
         $("#selected_unit").css("left", 1300);
     }
-    console.log(console_toggle);
+}
+
+$("#littletab").click(function () {
+    toggleConsole();
 });
 
 var map;
@@ -332,6 +392,18 @@ var lastVertex = 1;
 var step = 50; // 5; // metres
 var eol = [];
 
+
+function recalccave() {
+    var angle = Math.floor(Math.random() * 360);
+    angle = angle*Math.PI/180
+    x = Math.sin(angle) * .08
+    y = Math.cos(angle) * .08
+    cave1latlog.lat = keeplatlog.lat + x
+    cave1latlog.lng = keeplatlog.lng + y
+    cavemarker.setPosition(cave1latlog)
+    map.setCenter(cave1latlog)
+}
+
 // called on body load
 function initMap() {
     // initialize infoWindow
@@ -348,24 +420,10 @@ function initMap() {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         fullscreenControl: false,
     });
-    //
-    // initial location which loads up on map
-    const marker = new google.maps.Marker({
-        icon: caveurl,
-        position: cave1latlog,
-        map,
-    });
-    const marker2 = new google.maps.Marker({
-        icon: keepurl,
-        position: keeplatlog,
-        map,
-    });
-
-    // map.addListener("click", (mapsMouseEvent) => {
-
-    //     console.log(mapsMouseEvent.latLng.lat(), mapsMouseEvent.latLng.lng());
-    // });
-
+    
+    cavemarker = createfirstMarker(cave1latlog, caveurl)
+    keepmarker2 = createfirstMarker(keeplatlog, keepurl)
+    
     google.maps.event.addListener(map, "click", function (event) {
         if (build_toggle == 1) {
             console.log(event.latLng.lat());
@@ -374,11 +432,13 @@ function initMap() {
             build(event.latLng.lat(), event.latLng.lng(), selected_building);
         }
     });
-    // var line = new google.maps.Polyline({path: [keeplatlog, cave1latlog], map: map});
-    // console.log(haversine_distance(cave1latlog, keeplatlog))
 }
 
-//this is too large a number
+$( document ).ready(function() {
+    
+    
+});
+
 function haversine_distance(mk1, mk2) {
     var R = 6371071; // Radius of the Earth in meters
     var rlat1 = mk1.lat * (Math.PI / 180); // Convert degrees to radians
@@ -442,9 +502,23 @@ function createMarker(latlng, label) {
     return marker;
 }
 
-// function toggleError(msg){
-//     document.getElementById('error-msg').innerText = msg;
-// }
+
+// returns the marker
+function createfirstMarker(latlng, src) {
+    // using Marker api, marker is created
+    var marker = new google.maps.Marker({
+        position: latlng,
+        map: map,
+        zIndex: 10,
+        icon: {
+            url: src,
+            scaledSize: new google.maps.Size(50, 50),
+            anchor: new google.maps.Point(25, 25),
+        },
+    });
+    // adding click listener to open up info window when marker is clicked
+    return marker;
+}
 
 // Using Directions Service find the route between the starting and ending points
 function setRoutes() {
@@ -466,7 +540,7 @@ function setRoutes() {
     for (var i = 0; i < startLoc.length; i++) {
         var rendererOptions = {
             map: map,
-            suppressMarkers: false,
+            // suppressMarkers: false,
             preserveViewport: true,
         };
         directionsService = new google.maps.DirectionsService();
@@ -574,11 +648,9 @@ function updatePoly(i, d) {
             .getPath()
             .insertAt(poly2[i].getPath().getLength(), endLocation[0].latlng);
     }
-    // poly2[i].setMap(map);
-    // console.log("peanut");
 }
 
-round = 2
+round = 2;
 
 function updateMarkers() {
     //update markers
@@ -589,15 +661,15 @@ function updateMarkers() {
             return;
         }
 
-        if (unit[i].delay <= 0 ){
-        unit[i].d += 50;
-        var p = polyLine[0].GetPointAtDistance(unit[i].d);
-        unit[i].lat = p.lat();
-        unit[i].lng = p.lng();
-        unitmarker[i].setPosition({ lat: unit[i].lat, lng: unit[i].lng });
-        updatePoly(i, unit[i].d);
+        if (unit[i].delay <= 0) {
+            unit[i].d += 50;
+            var p = polyLine[0].GetPointAtDistance(unit[i].d);
+            unit[i].lat = p.lat();
+            unit[i].lng = p.lng();
+            unitmarker[i].setPosition({ lat: unit[i].lat, lng: unit[i].lng });
+            updatePoly(i, unit[i].d);
         } else {
-            unit[i].delay -= 10
+            unit[i].delay -= 10;
         }
         // do combat
         for (var tower = 0; tower < buildings.length; tower++) {
@@ -614,19 +686,20 @@ function updateMarkers() {
                 ) < 800
             ) {
                 unit[i].hp -= 1;
-                console.log(unit[i].hp)
+                console.log(unit[i].hp);
                 //detect death
                 if (unit[i].hp <= 0) {
                     unit.splice(i, 1);
-                    unitmarker[i].setMap(null)
+                    // unitmarker[i].setMap(null);
                     unitmarker[i].setIcon({
                         url: goblin1url,
                         scaledSize: new google.maps.Size(50, 50),
                         anchor: new google.maps.Point(25, 25),
-                    })
-                    unitmarker.splice(i,1)
-                    resources.gold += 100 * round
-                    updateResources()
+                    });
+                    unitmarker.splice(i, 1);
+                    resources.gold += 100 * round;
+                    notify("You got one! You got " + 100 * round + " gold");
+                    updateResources();
                 }
             }
         }
@@ -637,26 +710,9 @@ function startAnimation(index) {
     if (timerHandle[index]) clearTimeout(timerHandle[index]);
     eol[0] = polyLine[0].Distance(); // eol is the distance of the whole route
     map.setCenter(polyLine[0].getPath().getAt(0));
-    // poly2[index] = new google.maps.Polyline({
-    //     path: [polyLine[index].getPath().getAt(0)],
-    //     strokeColor: "#FFFF00",
-    //     strokeWeight: 3,
-    // });
-    for (var i = 0; i < round * round; i++) {
-        // spawns enemies for each round upping difficulty
-        // add units to unit roster
-        unit.push({
-            lat: cave1latlog.lat,
-            lng: cave1latlog.lng,
-            hp: 10 * round * round,
-            d: 50,
-            delay: i * 100,
-        });
-    }
-    console.log("created units:", unit.length);
+
     for (var i = 0; i < unit.length; i++) {
         // creates markers and poly2 for each unit
-        // hold onto your butts
         unitmarker[i] = createMarker({ lat: unit[i].lat, lng: unit[i].lng });
         poly2[i] = new google.maps.Polyline({
             path: [polyLine[0].getPath().getAt(0)],

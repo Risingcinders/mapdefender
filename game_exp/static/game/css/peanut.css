@@ -181,7 +181,8 @@ body {
 }
 
 #selected_unit {
-    background-color: darkblue;
+    background-color: var(--pribackground);
+    outline: solid 5px var(--accent);
     width: 150px;
     height: 150px;
     position: absolute;
@@ -204,7 +205,8 @@ body {
     left: 1750px;
     height: 100px;
     width: 50px;
-    background-color: coral;
+    background-color: var(--pribackground);
+    outline: solid 5px var(--accent);
     /* background-image: url(chevron.png); */
 }
 
@@ -215,10 +217,15 @@ body {
     left: 1450px;
     height: 150px;
     width: 350px;
-    background-color: palegreen;
+    background-color: var(--pribackground);
+    outline: solid 5px var(--accent);
     display: flex;
     flex-direction: column-reverse;
     overflow-y: auto;
+}
+
+#consoletab p {
+    margin: 0px 10px;
 }
 
 .unit {
