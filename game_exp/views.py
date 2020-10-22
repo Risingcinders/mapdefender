@@ -22,10 +22,10 @@ def gameStart(request):
         return redirect('/')
     else:
         logged_in_user = User.objects.get(email=request.session['userid'])
+    Instance.objects.create(gold=2000, score=0,round_count=0)
     context={
         'logged_in_user':logged_in_user
     }
-    Instance.objects.create(gold=2000, score=0,round_count=0)
     return redirect('/game',context)
 
 
