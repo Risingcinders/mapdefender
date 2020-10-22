@@ -1,8 +1,13 @@
+
+//initial conditions from database
+var userscore = 0;
+var resources = { gold: 5000 }; 
+var round = 1
+
 var bodyStyles = window.getComputedStyle(document.body);
 var gamestate = 1;
-var cavemarker = true
-var keepmarker2 = true
-
+var cavemarker = true;
+var keepmarker2 = true;
 var directionsService;
 var marker = [];
 var polyLine = [];
@@ -14,27 +19,22 @@ var infoWindow = null;
 var selected_id = 1;
 var startLoc = [];
 var endLoc = [];
-
 var lastVertex = 1;
-var step = 50; // 5; // metres
+var step = 50;
 var eol = [];
 var map;
-
 const keeplatlog = { lat: 30.330545304396807, lng: -97.69209468498084 };
 const cave1latlog = { lat: 30.34707066622668, lng: -97.61333359466332 };
-
 var towerurl = document.getElementById("towersrc").src;
-var flagurl = document.getElementById("flagsrc").src;
+var flagurl = document.getElementById("flagsrc").src;    //enemy image
 var caveurl = document.getElementById("cavesrc").src;
-var goblin1url = document.getElementById("goblin1src").src;
-var goblin2url = document.getElementById("goblin2src").src;
+var goblin1url = document.getElementById("goblin1src").src;   //death picture
+var goblin2url = document.getElementById("goblin2src").src;   //damange picture
 var keepurl = document.getElementById("keepsrc").src;
-
 var build_toggle = 0;
 var console_toggle = 0;
 var ccounter = 0;
 var bcounter = 0;
-var score = 0;
 var goldcost = 0;
 var stonecost = 0;
 var foodcost = 0;
@@ -46,11 +46,6 @@ var animateva = 1;
 var buildingcount = { wall: 0, tower: 0, flag: 0 };
 var unit = [];
 var unitmarker = [];
-
-// var resources = { gold: 5000, food: 2000, stone: 100 };
-var resources = { gold: 5000 }; // need to get ajax call here
-
-var round = 1;
 
 var building_types = [
     {
@@ -68,8 +63,6 @@ var building_types = [
 
 buildingobj = building_types.find((a) => a.btype == selected_building);
 
-// { lat: 650, lng: 650, type: "tower" }
-
 var buildings = [];
 var units = [
     {
@@ -86,6 +79,10 @@ var units = [
 
 function getcost(item) {
     goldcost = item.cost.gold;
+}
+
+function score(change) {
+    userscore += change
 }
 
 // This needs to be redone to ajax the gold
@@ -196,7 +193,7 @@ function ghost_building() {
 
 function updateResources() {
     document.getElementById("resources").innerHTML =
-        "<h3>Gold: " + resources.gold + " </h3><h3>Round: " + round + "</h3>";
+        "<h3>Gold: " + resources.gold + " </h3><h3>Round: " + round + "</h3><h3> Score:" + userscore + "</h3>";
 }
 
 function getPos(e) {
@@ -231,8 +228,8 @@ function gameLoop() {
 function gameover() {
     clearInterval(gameLoop);
     gamestate = 0;
-    $("#finalscore").append(score)
-    $("#finalround").append(round)
+    $("#finalscore").append(userscore);
+    $("#finalround").append(round - 1);
     $("#sneaky").css("display", "block");
     $("#map").css("filter", "grayscale(100%)");
     document.body.style.setProperty("--accent", "#4b4b4b");
@@ -261,13 +258,13 @@ function victorycheck() {
             notify("New Cave has apeared!");
             caveWindow = new google.maps.InfoWindow({
                 content: "A new Cave has Appeared!",
-                size: new google.maps.Size(150, 50)
+                size: new google.maps.Size(150, 50),
             });
             caveWindow.open(map, cavemarker);
             round++;
             gamestage();
         }
-    } 
+    }
 }
 
 function gamestage() {
@@ -284,7 +281,7 @@ function gamestage() {
                 unit.push({
                     lat: cave1latlog.lat,
                     lng: cave1latlog.lng,
-                    hp: 10 * round * round,
+                    hp: 5 * round * round,
                     d: 50,
                     delay: i * 100,
                 });
@@ -335,8 +332,7 @@ function gamestage() {
                     "</p>"
             );
         });
-    } else if (gamestate == 2) {
-    }
+    } 
 }
 
 // $("#recenter").on("click", function (event) {
@@ -350,10 +346,8 @@ $("#recenter").on("click", function (event) {
 });
 
 setInterval(gameLoop, 25);
-
 updateResources();
 displayBuildings();
-
 toggleConsole();
 
 function toggleConsole() {
@@ -375,33 +369,20 @@ $("#littletab").click(function () {
     toggleConsole();
 });
 
-var map;
-var directionsService;
-var marker = [];
-var polyLine = [];
-var poly2 = [];
-var startLocation = [];
-var endLocation = [];
-var timerHandle = [];
-var infoWindow = null;
-
-var startLoc = [];
-var endLoc = [];
-
-var lastVertex = 1;
-var step = 50; // 5; // metres
-var eol = [];
-
 
 function recalccave() {
     var angle = Math.floor(Math.random() * 360);
-    angle = angle*Math.PI/180
-    x = Math.sin(angle) * .08
-    y = Math.cos(angle) * .08
-    cave1latlog.lat = keeplatlog.lat + x
-    cave1latlog.lng = keeplatlog.lng + y
-    cavemarker.setPosition(cave1latlog)
-    map.setCenter(cave1latlog)
+    angle = (angle * Math.PI) / 180;
+    x = Math.sin(angle) * 0.08;
+    y = Math.cos(angle) * 0.08;
+    cave1latlog.lat = keeplatlog.lat + x;
+    cave1latlog.lng = keeplatlog.lng + y;
+    cavemarker.setPosition(cave1latlog);
+    var bounds = new google.maps.LatLngBounds();
+    bounds.extend(cavemarker.getPosition());
+    bounds.extend(keepmarker2.getPosition());
+    map.fitBounds(bounds);
+    // map.setCenter(bounds.getCenter());
 }
 
 // called on body load
@@ -420,10 +401,10 @@ function initMap() {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         fullscreenControl: false,
     });
-    
-    cavemarker = createfirstMarker(cave1latlog, caveurl)
-    keepmarker2 = createfirstMarker(keeplatlog, keepurl)
-    
+
+    cavemarker = createfirstMarker(cave1latlog, caveurl);
+    keepmarker2 = createfirstMarker(keeplatlog, keepurl);
+
     google.maps.event.addListener(map, "click", function (event) {
         if (build_toggle == 1) {
             console.log(event.latLng.lat());
@@ -432,12 +413,13 @@ function initMap() {
             build(event.latLng.lat(), event.latLng.lng(), selected_building);
         }
     });
+    var bounds = new google.maps.LatLngBounds();
+    bounds.extend(cavemarker.getPosition());
+    bounds.extend(keepmarker2.getPosition());
+    map.fitBounds(bounds);
 }
 
-$( document ).ready(function() {
-    
-    
-});
+$(document).ready(function () {});
 
 function haversine_distance(mk1, mk2) {
     var R = 6371071; // Radius of the Earth in meters
@@ -501,7 +483,6 @@ function createMarker(latlng, label) {
     // adding click listener to open up info window when marker is clicked
     return marker;
 }
-
 
 // returns the marker
 function createfirstMarker(latlng, src) {
@@ -650,26 +631,36 @@ function updatePoly(i, d) {
     }
 }
 
-round = 2;
-
 function updateMarkers() {
+    var closest = [];
+    var closestunit = [];
     //update markers
     for (var i = 0; i < unit.length; i++) {
+        if (!unit[i]) {
+            continue
+        }
         if (unit[i].d > eol[0]) {
-            setInterval(gameLoop, 10000);
             gameover();
             return;
         }
-
         if (unit[i].delay <= 0) {
             unit[i].d += 50;
-            var p = polyLine[0].GetPointAtDistance(unit[i].d);
+            var p = polyLine[0].GetPointAtDistance(unit[i].d); /// fix this line
             unit[i].lat = p.lat();
             unit[i].lng = p.lng();
+            unitmarker[i].setIcon({
+                url: flagurl,
+                scaledSize: new google.maps.Size(50, 50),
+                anchor: new google.maps.Point(25, 25),
+            })
             unitmarker[i].setPosition({ lat: unit[i].lat, lng: unit[i].lng });
             updatePoly(i, unit[i].d);
         } else {
             unit[i].delay -= 10;
+        }
+        // resetting range detection
+        for (var tower = 0; tower < buildings.length; tower++) {
+            closest[tower] = 1000;
         }
         // do combat
         for (var tower = 0; tower < buildings.length; tower++) {
@@ -679,29 +670,44 @@ function updateMarkers() {
             };
             // get distance between tower and the object
             // if distance is less than tower range 800
-            if (
-                haversine_distance(
-                    { lat: unit[i].lat, lng: unit[i].lng },
-                    towerlatlng
-                ) < 800
-            ) {
-                unit[i].hp -= 1;
-                console.log(unit[i].hp);
-                //detect death
-                if (unit[i].hp <= 0) {
-                    unit.splice(i, 1);
-                    // unitmarker[i].setMap(null);
-                    unitmarker[i].setIcon({
-                        url: goblin1url,
-                        scaledSize: new google.maps.Size(50, 50),
-                        anchor: new google.maps.Point(25, 25),
-                    });
-                    unitmarker.splice(i, 1);
-                    resources.gold += 100 * round;
-                    notify("You got one! You got " + 100 * round + " gold");
-                    updateResources();
+            // Get closest and attack only that one!
+            range = haversine_distance(
+                { lat: unit[i].lat, lng: unit[i].lng },
+                towerlatlng
+            );
+            if (range < 800) {
+                if (range < closest[tower]) {
+                    closest[tower] = range;
+                    closestunit[tower] = i
                 }
             }
+        }
+    }
+    for (var tower = 0; tower < buildings.length; tower++) {
+        if (unit[closestunit[tower]]){
+        unit[closestunit[tower]].hp -= 2;
+        unitmarker[closestunit[tower]].setIcon({
+            url: goblin2url,  //on hit change marker to hit indicator
+            scaledSize: new google.maps.Size(50, 50),
+            anchor: new google.maps.Point(25, 25),
+        })
+        // console.log(unit[closestunit[tower]].hp);
+        }
+    }
+    for (var i = 0; i < unit.length; i++) {
+        //detect death
+        if (unit[i].hp <= 0) {
+            unit.splice(i, 1); // this doesn't seem to work
+            unitmarker[i].setIcon({
+                url: goblin1url,
+                scaledSize: new google.maps.Size(50, 50),
+                anchor: new google.maps.Point(25, 25),
+            });
+            unitmarker.splice(i, 1);
+            resources.gold += 100 * round;
+            score(100*round)
+            notify("You got one! You got " + 100 * round + " gold");
+            updateResources();
         }
     }
 }
