@@ -8,17 +8,63 @@
         <link rel="stylesheet" href="{% static 'user/css/foundation.css' %}" />
         <link rel="stylesheet" href="{% static 'user/css/dashstyle.css' %}">
     </head>
+    <style>
+        body{
+            background-image: url(../static/user/img/map2.png);
+        }
+        #header{
+            background-color: rgb(91, 134, 212);
+            border-radius: 20px;
+            width: 1500px;
+            margin-top: 40px;
+            padding-left: 40px;
+            display: flex;
+            justify-content: space-between
+            
+        }
+        
+        h1{
+            margin-top: 50px;
+            text-decoration:underline;
+            margin-bottom: 40px;
+        }
+        h2{
+            font-style:oblique;
+            color: rgb(47, 62, 77);
+        }
+        p{
+            background-image: url(../static/user/img/gold.jpg);
+            height: 150px;
+            border-radius: 50%;
+            padding-top: 20px;
+            padding-left: 20px;
+        }
+        .btn{
+            margin-top: 5px;
+
+        }
+        button{
+            background-color: rgb(161, 161, 221);
+            margin-right: 25px;
+            height: 50px;
+            padding: 5px;
+        }
+        
+    </style>
     <body>
         
         <div id="wrapper">
             <div id="header">
                 <h2>Welcome {{logged_in_user.username}}!</h2>
+                <div class="btn">
+                    <button type="submit" style="font-size: 25px;"><a href="/edit_user_info/{{logged_in_user.id}}">Edit User</a></button>
+                    <button type="submit" style="font-size: 25px;"><a href="/instruction">How to play?</a></button>
+                    <button type="submit" style="font-size: 25px;"><a href="logout">Logout</a> </button>
+                </div>    
             </div>
             <div id="pagebody">
-                <a href="/google.com">Start Game</a>
-                <h3>Last Game's Score(score goes here)</h3>
-                <a href="/edit_user_info/{{logged_in_user.id}}">Edit User </a>
-                
+                <h1><a href="/google.com" style="color:goldenrod;">Start Game</a></h1>
+                <h4>Last Game's Gold: <p>(score goes here)</p></h4>
             </div>
             <a href="logout">Logout</a>
             <a href="/game/gameStart" name="gameStart">Start Game</a>
