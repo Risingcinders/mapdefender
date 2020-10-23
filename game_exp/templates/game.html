@@ -42,16 +42,17 @@
             <h3>Game Over!</h3>
             <p id="finalscore">Final Score: </p>
             <p id="finalround"> Final Round: </p>
-            <a href="/landing">Back to Home Page</a>
             <a href="/scoreboard">Leaderboards</a>
         </div>
         <div id="build" class="overlay">Build</div>
         <div id="menu" class="overlay">Start Round</div>
         <div id="loaded_images" style="display: none">
+            
+            {% csrf_token %}
             <img id="wallsrc" src="{% static 'game/img/wall.png' %}" alt="" />
             <img
                 id="flagsrc"
-                src="{% static 'game/img/redflag.png' %}"
+                src="{% static 'game/img/goblin1.gif' %}"
                 alt=""
             />
             <img id="cavesrc" src="{% static 'game/img/cave.png' %}" alt="" />
@@ -63,6 +64,16 @@
             <img
                 id="goblin2src"
                 src="{% static 'game/img/goblin2.png' %}"
+                alt=""
+            />
+            <img
+                id="explodesrc"
+                src="{% static 'game/img/explode.png' %}"
+                alt=""
+            />
+            <img
+                id="gravesrc"
+                src="{% static 'game/img/grave.png' %}"
                 alt=""
             />
             <img id="keepsrc" src="{% static 'game/img/keep.png' %}" alt="" />

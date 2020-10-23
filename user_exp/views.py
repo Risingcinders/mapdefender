@@ -80,30 +80,20 @@ def scoreboard(request):
         logged_in_user = User.objects.get(email=request.session['userid'])
     context  = {
         'logged_in_user' : logged_in_user,
-        'scores' : Playthrough.objects.all(),
+        'scores' : Playthrough.objects.all().order_by("-score"),
+        'lastplay' : Playthrough.objects.last()
     }
     return render(request, 'scoreboard.html', context)
 
-def scoreboard(request):
-    if not 'userid' in request.session:
-        return redirect('/')
-    else:
-        logged_in_user = User.objects.get(email=request.session['userid'])
-    context  = {
-        'logged_in_user' : logged_in_user,
-        'scores' : Playthrough.objects.all(),
-    }
-    return render(request, 'scoreboard.html', context)
-
-def fakedata(request, score, round_count):
-    if not 'userid' in request.session:
-        return redirect('/')
-    else:
-        global logged_in_user
-        logged_in_user = User.objects.get(email=request.session['userid'])
-    print(f"created entry with {score} and {round_count} ")
-    Playthrough.objects.create(score = score, round_count = round_count, user_id = logged_in_user)
-    return redirect('/landing')
+# def fakedata(request, score, round_count):
+#     if not 'userid' in request.session:
+#         return redirect('/')
+#     else:
+#         global logged_in_user
+#         logged_in_user = User.objects.get(email=request.session['userid'])
+#     print(f"created entry with {score} and {round_count} ")
+#     Playthrough.objects.create(score = score, round_count = round_count, user_id = logged_in_user)
+#     return redirect('/landing')
 
 def edit_user(request,user_id):
     if not 'userid' in request.session:
@@ -133,6 +123,3 @@ def submit(request):
 
 def instruction(request):
     return render(request,'instruction.html')
-
-def back(request):
-    return redirect('/landing')    

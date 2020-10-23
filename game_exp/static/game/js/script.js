@@ -1,8 +1,7 @@
-
 //initial conditions from database
 var userscore = 0;
-var resources = { gold: 5000 }; 
-var round = 1
+var resources = { gold: 3000 };
+var round = 1;
 
 var bodyStyles = window.getComputedStyle(document.body);
 var gamestate = 1;
@@ -26,16 +25,18 @@ var map;
 const keeplatlog = { lat: 30.330545304396807, lng: -97.69209468498084 };
 const cave1latlog = { lat: 30.34707066622668, lng: -97.61333359466332 };
 var towerurl = document.getElementById("towersrc").src;
-var flagurl = document.getElementById("flagsrc").src;    //enemy image
+var flagurl = document.getElementById("flagsrc").src; //enemy image
 var caveurl = document.getElementById("cavesrc").src;
-var goblin1url = document.getElementById("goblin1src").src;   //death picture
-var goblin2url = document.getElementById("goblin2src").src;   //damange picture
+var goblin1url = document.getElementById("goblin1src").src; //death picture
+var goblin2url = document.getElementById("goblin2src").src; //damange picture
 var keepurl = document.getElementById("keepsrc").src;
+var explodeurl = document.getElementById("explodesrc").src;
+var graveurl = document.getElementById("gravesrc").src;
 var build_toggle = 0;
 var console_toggle = 0;
 var ccounter = 0;
 var bcounter = 0;
-var goldcost = 0;
+var goldcost = 1000;
 var stonecost = 0;
 var foodcost = 0;
 var selected_building = "wall";
@@ -82,7 +83,7 @@ function getcost(item) {
 }
 
 function score(change) {
-    userscore += change
+    userscore += change;
 }
 
 // This needs to be redone to ajax the gold
@@ -96,13 +97,6 @@ function notify(note) {
         .append("<p>" + note + "</p>");
 }
 
-function buildingcounter() {
-    buildingcount = { wall: 0, tower: 0, flag: 0 };
-    for (i = 0; i < buildings.length; i++) {
-        buildingcount[buildings[i].type]++;
-    }
-}
-
 function spendresources() {
     resources.gold -= goldcost;
     notify("gold: -" + goldcost);
@@ -114,7 +108,6 @@ function build(lat, lng, building_type) {
         if (building_types[i].btype == building_type) {
             getcost(building_types[i]);
             building_hp = building_types[i].hp;
-            buildingcounter();
             break;
         }
     }
@@ -193,7 +186,13 @@ function ghost_building() {
 
 function updateResources() {
     document.getElementById("resources").innerHTML =
-        "<h3>Gold: " + resources.gold + " </h3><h3>Round: " + round + "</h3><h3> Score:" + userscore + "</h3>";
+        "<h3>Gold: " +
+        resources.gold +
+        " </h3><h3>Round: " +
+        round +
+        "</h3><h3> Score:" +
+        userscore +
+        "</h3>";
 }
 
 function getPos(e) {
@@ -213,7 +212,7 @@ function gamepaused() {
         clearInterval(gameLoop);
     } else {
         $("#menu").css("filter", "none");
-        setInterval(gameLoop, 1000);
+        // setInterval(gameLoop, 1000);
     }
 }
 
@@ -243,6 +242,7 @@ function gameover() {
         gestureHandling: "none",
         zoomControl: false,
     });
+    updateScoreboard()
 }
 
 function victorycheck() {
@@ -251,16 +251,10 @@ function victorycheck() {
         if (unit.length == 0) {
             //round complete, progress game
             notify("Round " + round + " Complete!");
-            resources.gold += round * 100;
-            notify("Round bonus: " + round * 100 + " gold!");
+            resources.gold += round * 100 + 1000;
+            notify("Round bonus: " + (round * 100 + 1000) + " gold!");
             gamestate = 1;
             recalccave();
-            notify("New Cave has apeared!");
-            caveWindow = new google.maps.InfoWindow({
-                content: "A new Cave has Appeared!",
-                size: new google.maps.Size(150, 50),
-            });
-            caveWindow.open(map, cavemarker);
             round++;
             gamestage();
         }
@@ -295,7 +289,7 @@ function gamestage() {
             $("#buildmenu").hide();
             build_toggle = 0;
             $("#build").css("filter", "grayscale(50%)");
-            setInterval(gameLoop, 50);
+            // setInterval(gameLoop, 50);
 
             setRoutes();
             console.log("its over");
@@ -310,29 +304,23 @@ function gamestage() {
             } else {
                 $("#build").css("filter", "none");
             }
-            console.log(build_toggle);
         });
 
         $("#buildmenu div").on("click", function (event) {
             selected_building = "tower";
             selected_building_src = towerurl;
-            console.log(selected_building_src);
-            buildingobj = building_types.find(
-                (a) => a.btype == selected_building
-            );
             $(this).addClass("selected");
             $("div").not(this).removeClass("selected");
-            $("#selected_unit").html(
-                "<img src='" +
-                    selected_building_src +
-                    "'></img><p>HP: " +
-                    buildingobj.hp +
-                    "</p><p>Type: " +
-                    selected_building +
-                    "</p>"
-            );
+            
         });
-    } 
+        $("#selected_unit").html(
+            "<h6>Upcoming Enemies:</h6><img src='" +
+                flagurl +
+                "'></img><p>HP: " +
+                (5 * round * round) +
+                "</p>"
+        );
+    }
 }
 
 // $("#recenter").on("click", function (event) {
@@ -369,7 +357,6 @@ $("#littletab").click(function () {
     toggleConsole();
 });
 
-
 function recalccave() {
     var angle = Math.floor(Math.random() * 360);
     angle = (angle * Math.PI) / 180;
@@ -378,10 +365,16 @@ function recalccave() {
     cave1latlog.lat = keeplatlog.lat + x;
     cave1latlog.lng = keeplatlog.lng + y;
     cavemarker.setPosition(cave1latlog);
+    map.setZoom(map.getZoom -1)
     var bounds = new google.maps.LatLngBounds();
     bounds.extend(cavemarker.getPosition());
     bounds.extend(keepmarker2.getPosition());
-    map.fitBounds(bounds);
+    map.fitBounds(bounds, 100);
+    caveWindow = new google.maps.InfoWindow({
+        content: "A new Cave has Appeared!",
+        size: new google.maps.Size(150, 50),
+    });
+    caveWindow.open(map, cavemarker);
     // map.setCenter(bounds.getCenter());
 }
 
@@ -404,22 +397,39 @@ function initMap() {
 
     cavemarker = createfirstMarker(cave1latlog, caveurl);
     keepmarker2 = createfirstMarker(keeplatlog, keepurl);
+    
+    keepWindow = new google.maps.InfoWindow({
+        content: "Defend your Keep!",
+        size: new google.maps.Size(150, 50),
+    });
+    keepWindow.open(map, keepmarker2);
 
     google.maps.event.addListener(map, "click", function (event) {
         if (build_toggle == 1) {
-            console.log(event.latLng.lat());
-            placeMarker(event.latLng);
-
-            build(event.latLng.lat(), event.latLng.lng(), selected_building);
+            if (checkcost()) {
+                placeMarker(event.latLng);
+                buildings.push({
+                    lat: event.latLng.lat(),
+                    lng: event.latLng.lng(),
+                    type: selected_building,
+                });
+                spendresources();
+            } else {
+                notify("Insufficient Resources");
+            }
         }
     });
     var bounds = new google.maps.LatLngBounds();
     bounds.extend(cavemarker.getPosition());
     bounds.extend(keepmarker2.getPosition());
-    map.fitBounds(bounds);
+    map.fitBounds(bounds, 10);
 }
 
-$(document).ready(function () {});
+
+
+$(document).ready(function () {
+    recalccave();
+});
 
 function haversine_distance(mk1, mk2) {
     var R = 6371071; // Radius of the Earth in meters
@@ -637,7 +647,7 @@ function updateMarkers() {
     //update markers
     for (var i = 0; i < unit.length; i++) {
         if (!unit[i]) {
-            continue
+            continue;
         }
         if (unit[i].d > eol[0]) {
             gameover();
@@ -652,7 +662,7 @@ function updateMarkers() {
                 url: flagurl,
                 scaledSize: new google.maps.Size(50, 50),
                 anchor: new google.maps.Point(25, 25),
-            })
+            });
             unitmarker[i].setPosition({ lat: unit[i].lat, lng: unit[i].lng });
             updatePoly(i, unit[i].d);
         } else {
@@ -678,20 +688,20 @@ function updateMarkers() {
             if (range < 800) {
                 if (range < closest[tower]) {
                     closest[tower] = range;
-                    closestunit[tower] = i
+                    closestunit[tower] = i;
                 }
             }
         }
     }
     for (var tower = 0; tower < buildings.length; tower++) {
-        if (unit[closestunit[tower]]){
-        unit[closestunit[tower]].hp -= 2;
-        unitmarker[closestunit[tower]].setIcon({
-            url: goblin2url,  //on hit change marker to hit indicator
-            scaledSize: new google.maps.Size(50, 50),
-            anchor: new google.maps.Point(25, 25),
-        })
-        // console.log(unit[closestunit[tower]].hp);
+        if (unit[closestunit[tower]]) {
+            unit[closestunit[tower]].hp -= 2;
+            unitmarker[closestunit[tower]].setIcon({
+                url: explodeurl, //on hit change marker to hit indicator
+                scaledSize: new google.maps.Size(50, 50),
+                anchor: new google.maps.Point(25, 25),
+            });
+            // console.log(unit[closestunit[tower]].hp);
         }
     }
     for (var i = 0; i < unit.length; i++) {
@@ -699,13 +709,13 @@ function updateMarkers() {
         if (unit[i].hp <= 0) {
             unit.splice(i, 1); // this doesn't seem to work
             unitmarker[i].setIcon({
-                url: goblin1url,
+                url: graveurl,
                 scaledSize: new google.maps.Size(50, 50),
                 anchor: new google.maps.Point(25, 25),
             });
             unitmarker.splice(i, 1);
-            resources.gold += 100 * round;
-            score(100*round)
+            resources.gold += 75 * round;
+            score(100 * round);
             notify("You got one! You got " + 100 * round + " gold");
             updateResources();
         }
@@ -726,4 +736,25 @@ function startAnimation(index) {
             strokeWeight: 3,
         });
     }
+}
+
+
+function updateScoreboard(){
+    const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    var data = {'score': userscore, "round" : round };
+    $.post('updatescoreboard', data, function(response){
+        if(response === 'success'){ alert('Yay!'); }
+        else{ alert('Error! :('); }
+    });
 }

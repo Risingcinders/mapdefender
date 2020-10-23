@@ -23,7 +23,11 @@
                 <th>Number of Rounds</th>
             </tr>
             {% for score in scores %}
-            <tr>
+            <tr 
+            {% if lastplay.id == score.id and lastplay.user_id.id == logged_in_user.id %}
+                style="color:blue;"
+            {% endif %}
+            >
                 <td>{{ score.user_id.username }}</td>
                 <td>{{ score.score }}</td>
                 <td>{{ score.round_count }}</td>

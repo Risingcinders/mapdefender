@@ -11,6 +11,5 @@ urlpatterns = [
     path('edit_user_info/<int:user_id>',views.edit_user),
     path('submit',views.submit),
     path('scoreboard', views.scoreboard),
-    path('back',views.back),
-    path('fakedata/<int:score>/<int:round_count>', views.fakedata)
+    # path('fakedata/<int:score>/<int:round_count>', views.fakedata)
 ]
