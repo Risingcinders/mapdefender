@@ -29,7 +29,7 @@ def register(request):
         User.objects.create(username=request.POST['username'],
                             password=pw_hash, email=request.POST['email'])
         request.session['userid'] = request.POST['email']
-    return redirect('/game')
+    return redirect('/landing')
 
 
 def login(request):
